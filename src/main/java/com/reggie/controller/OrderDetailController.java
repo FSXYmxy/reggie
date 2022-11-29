@@ -1,0 +1,20 @@
+package com.reggie.controller;
+
+import com.reggie.service.OrderDetailService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * @create: 2022/11/22 12:45
+ */
+
+@RestController
+@RequestMapping("/orderDetail")
+@Slf4j
+public class OrderDetailController {
+
+    @Autowired
+    private OrderDetailService orderDetailService;
+}
