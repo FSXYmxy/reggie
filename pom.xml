@@ -22,6 +22,15 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+
+
         <!--导入阿里云短信-->
         <!-- https://mvnrepository.com/artifact/com.aliyun/aliyun-java-sdk-core -->
         <dependency>
