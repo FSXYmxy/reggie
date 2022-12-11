@@ -49,7 +49,7 @@ public class LoginCheckFilter implements Filter {
             return;
         }
 
-        //3.如果已登录也放行
+        //3.如果管理员已登录也放行
         if (request.getSession().getAttribute("employee") != null){
 
             //保存Id

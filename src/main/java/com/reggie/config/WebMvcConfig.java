@@ -31,6 +31,8 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     }
 
     //拓展消息转换器
+    //这里的意思是，将web请求的序列化和反序列化工作交由我们之前创建的自定义序列化器执行，
+    //为了实现这一目的，我们将消息转化器的序列化器指定为自定义序列化器，并设为最高优先级
     @Override
     protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         //创建消息转换器
