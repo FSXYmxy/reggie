@@ -13,12 +13,13 @@ import com.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,7 @@ public class DishController {
     CategoryService categoryService;
     @Autowired
     private RedisTemplate redisTemplate;
+
 
     /**
      * 查找菜品分页
@@ -92,30 +94,13 @@ public class DishController {
     }
 
 
-//    /**
-//     * 按id查找菜品
-//     * @param id
-//     * @return
-//     */
-//    @GetMapping("/{id}")
-//    public R<Dish> getById(@PathVariable Long id){
-//        log.info("查找菜品{}", id);
-//
-//        Dish dish = dishService.getById(id);
-//        if (dish != null) {
-//            return R.success(dish);
-//        }
-//
-//        return R.error("查找的菜品并不存在");
-//
-//    }
-
     /**
      * 停售或启售菜品
      * @param code
      * @param ids
      * @return
      */
+//    @CacheEvict(value = "dishCache", key = "#ids")
     @PostMapping("/status/{code}")
     public R<Dish> forbid(@PathVariable Integer code, Long ids){
         Dish dish = dishService.getById(ids);
@@ -150,6 +135,7 @@ public class DishController {
      * @param ids
      * @return
      */
+//    @CacheEvict(value = "dishCache", key = "#ids")
     @DeleteMapping("/{ids}")
     public R<String > delete(@PathVariable Long ids){
         dishService.removeById(ids);
@@ -162,6 +148,7 @@ public class DishController {
      * @param dishDto
      * @return
      */
+//    @CachePut(value = "dishCache", key = "#dishDto.id")     // + '_' + #dishDto.name
     @PostMapping
     public R<String > save(@RequestBody DishDto dishDto){
 
@@ -178,6 +165,7 @@ public class DishController {
      * @param id
      * @return
      */
+//    @Cacheable(value = "dishCache", key = "#id")
     @GetMapping("/{id}")
     public R<DishDto> get(@PathVariable Long id){
         DishDto dishDto = dishService.getByIdWithFlavor(id);
@@ -185,12 +173,9 @@ public class DishController {
         return R.success(dishDto);
     }
 
+//    @CacheEvict(value = "dishCache", key = "#dishDto.id")
     @PutMapping
     public R<String > update(@RequestBody DishDto dishDto){
-
-//        //清理所有的菜品缓存
-//        Set keys = redisTemplate.keys("dish_*");
-//        redisTemplate.delete(keys);
 
         //根据分类清理缓存
         String key = "dish_" + dishDto.getCategoryId() + "_1";
@@ -202,42 +187,10 @@ public class DishController {
         return R.success("菜品修改成功");
     }
 
-//    /**
-//     * 查找套餐分类
-//     * @param categoryId
-//     * @return
-//     */
-//    @GetMapping("/list")
-//    public R<List<Category>> list(Long categoryId){
-//        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
-//        queryWrapper.eq(Category::getId, categoryId);
-//
-//        List<Category> list = categoryService.list(queryWrapper);
-//
-//        return R.success(list);
-//    }
-
-//    /**
-//     * 查找同一分类下的菜品列表
-//     * @param categoryId
-//     * @return
-//     */
-//    @GetMapping("/list")
-//    public R<List<Dish>> list(Long categoryId){
-//
-//        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-//
-//        //按照分类id查找,需要是在售的菜品
-//        queryWrapper.eq(Dish::getCategoryId, categoryId).eq(Dish::getStatus, 1);
-//
-//        //得到菜品列表
-//        List<Dish> dishList = dishService.list(queryWrapper);
-//
-//        return R.success(dishList);
-//    }
 
     //添加缓存菜品功能
     @GetMapping("/list")
+//    @Cacheable(value = "dishCache", key = "#dish.id + '_list'")
     public R<List<DishDto>> list(Dish dish){
         Long categoryId = dish.getCategoryId();
         List<DishDto> dishDtoList = null;

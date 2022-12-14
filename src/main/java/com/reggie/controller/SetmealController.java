@@ -14,6 +14,9 @@ import com.reggie.service.SetmealDishService;
 import com.reggie.service.SetmealService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -113,6 +116,7 @@ public class SetmealController {
      */
     @Transactional
     @DeleteMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)//删除该分类下的所有缓存
     public R<String > delete(Long[] ids){
 
         for (Long id : ids){
@@ -157,6 +161,8 @@ public class SetmealController {
      * @return
      */
     @PutMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)//删除该分类下的所有缓存
+
     public R<String > update(@RequestBody SetmealDto setmealDto){
         setmealService.updateWithDish(setmealDto);
 
@@ -169,6 +175,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping
+    @CachePut(value = "setmealCache", key = "#setmealDto.id")
     public R<String > save(@RequestBody SetmealDto setmealDto){
         setmealService.saveWithDish(setmealDto);
 
@@ -181,6 +188,7 @@ public class SetmealController {
      * @param status
      * @return
      */
+    @Cacheable(value = "setmealCache", key = "#categoryId + '_' + #status")
     @GetMapping("/list")
     public R<List<SetmealDto>> list(Long categoryId, Integer status){
         //先查找在售的id相同的套餐的基本信息
