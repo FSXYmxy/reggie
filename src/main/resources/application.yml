@@ -79,4 +79,3 @@ spring:
     redis:
       time-to-live: 1800000
 
-你好
